@@ -1,0 +1,21 @@
+h1 {
+	text-align: center;
+}
+div {
+	width: 60%;
+	margin: 0 auto;
+}
+a {
+	display: inline-block;
+	width: 32%;
+	text-align: center;
+	margin: 0 auto;
+	text-decoration: none;
+	background-color: yellow;
+	color: black;
+}
+a:hover {
+	background-color: green;
+	color: white;
+	text-decoration: none;
+}
