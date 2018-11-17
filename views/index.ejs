@@ -1,17 +1,14 @@
 <html>
 	<head>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
-
+		<link href="header.css" rel="stylesheet" type="text/css">
 <style>
-h1 {
-	text-align: center;
-}
 section {
 	width: 60%;
 	margin: 0 auto;
 	margin-bottom: 5;
-	border: 1px solid black;
+	border: 3px solid;
+	border-color: var(--main-border-color); 
 }
 section.scorecard {
 	width: 100%;
@@ -25,42 +22,49 @@ section.footer {
 }
 div {
 	display: inline-block;
-	width: 4%;
+	width: 3.4%;
 	text-align: center;
 	margin: 0 auto;
+	margin-bottom: 4;
+	color: var(--par-text-color);
+}
+div.expectedPar {
+	color: var(--expected-par-text-color);
+}
+div.expectedPar.Out, div.expectedPar.In, div.expectedPar.Total,
+div.in, div.out, div.total {
+	color: var(--scorecard-header-color);
+}
+div.eagle {
+	background-color: var(--eagle-color);
+	color: var(--eagle-text-color);
+	border-radius: 50%;
+}
+div.birdie {
+	color: var(--birdie-text-color);
+	border: 1px solid;
+	border-radius: 50%;
+	border-color: var(--birdie-color);
+}
+div.bogey {
+	border: 1px solid;
+	border-color: var(--bogey-color);
+	color: var(--bogey-text-color);
+}
+div.double {
+	background-color: var(--double-color);
+	color: var(--double-text-color);
+	position: relative;
 }
 div.course {
 	width: 100%;
 	text-align: left;
 	padding-left: 10;
+	color: var(--main-text-color);
 }
 div.date {
 	width: 100px;
-}
-div.headers {
-	width: 60%;
-	display: block;
-	margin: 0 auto;
-	margin-bottom: 10;
-}
-a {
-	display: inline-block;
-	width: 24.5%;
-	text-align: center;
-	margin: 0 auto;
-	text-decoration: none;
-	background-color: yellow;
-	color: black;
-}
-a.current 
-{
-	background-color: green;
-	color: white;
-}
-a:hover {
-	background-color: green;
-	color: white;
-	text-decoration: none;
+	color: var(--main-text-color);
 }
 table {
 	width: 60%;
@@ -88,14 +92,18 @@ tr,td {
 			<% scorecards.forEach(function(fullGame, index) { %>
 			<section>	
 				<section class="scorecard">
-					<div class="course"> <%= fullGame.course %> </div>
+					<div class="course"> 
+						<a class="course" href="/myStats?course=<%= fullGame.course %>">
+						 <%= fullGame.course %>
+						</a> 
+					</div>
 				</section>
 
 				<section class="scorecard">
 					<div class="date"> Par </div>
 
 					<% fullGame.pars.forEach(function(shotsPerHole, scoreIndex) { %>
-						<div> <%= shotsPerHole %> </div>
+						<div class="expectedPar <%= shotsPerHole %>"> <%= shotsPerHole %> </div>
 					<% }); %>
 
 					</section>
@@ -104,7 +112,7 @@ tr,td {
 					<div class="date"> <%= fullGame.date %> </div>
 
 					<% fullGame.scores.forEach(function(shotsPerHole, scoreIndex) { %>
-					<div> <%= shotsPerHole %> </div>
+					<div class="<%= fullGame.classes[scoreIndex]%>"> <%= shotsPerHole %> </div>
 					<% }); %>
 
 				</section>

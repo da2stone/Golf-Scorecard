@@ -8,6 +8,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 
 var db = require("./db");
+var stats = require("./stats");
 
 var app = express();
 var urlencodedparser = bodyParser.urlencoded({extended: false});
@@ -23,6 +24,9 @@ app.use(bodyParser.json());
 
 app.set('view engine', 'ejs'); // set the view engine to use ejs 
 
+// Able to access other css files
+app.use(express.static(__dirname + '/views'));
+
 app.get('/', function(req, res) {
 	if(!isScorecardCacheUpToDate)
 	{
@@ -31,35 +35,8 @@ app.get('/', function(req, res) {
 		.then(function(result) {
 			// Put the scorecards in the right format to display on the screen
 			result.forEach((row) => {
-				let scorecard = {
-					'course': row.course,
-					'date': row.date,
-					'scores': [],
-					'pars': []
-				};
-				let pars = false;
-
-				for(var col in row) {
-					if(col != "course" && col != "date")
-					{
-						if(col == "par1")
-						{
-							pars = true;
-						}
-						if(!pars)
-						{
-							scorecard.scores.push(row[col]);
-						}
-						else
-						{
-							scorecard.pars.push(row[col]);
-						}
-					}
-				}
-				console.log(scorecard);
-				scorecardList.push(scorecard);
+				scorecardList.push(stats.getScorecardResultFromRow(row));
 			});
-
 			isScorecardCacheUpToDate = true;
 			res.render('index', {scorecards: scorecardList});
 		}, function(err) {
@@ -75,7 +52,8 @@ app.get('/', function(req, res) {
 	res.render('index');
 })
 .get('/myStats', function(req,res){
-	res.render('myStats');
+	let userStats = stats.populateStatsFromScorecardList(scorecardList);
+	res.render('myStats', {userStats: userStats});
 })
 .get('/addCourse', function(req, res) {
 	res.render('addCourse');
@@ -146,6 +124,7 @@ app.get('/', function(req, res) {
 		var currentCourse = req.query.getCourse;
 		res.send({pars: courses[currentCourse]})
 	}
+	// TODO add redirect to home page if this is not the case
 })
 .post('/addScorecard', urlencodedparser, function(req, res){
 

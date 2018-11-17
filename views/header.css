@@ -1,21 +1,72 @@
+:root {
+	--main-background-color: #FFFFFF;
+	--main-text-color: #000000;
+	--main-border-color: #000000;
+
+	--scorecard-color: var(--main-text-color);
+
+	--header-color-selected: var(--scorecard-color);
+	--header-text-color-selected: var(--main-background-color);
+
+	--header-color-unselected: var(--main-text-color);
+	--header-text-color-unselected: var(--main-background-color);
+
+	--expected-par-text-color: var(--main-text-color);
+	--scorecard-header-color: var(--main-border-color);
+
+	--par-text-color: var(--scorecard-color);
+
+	--birdie-color: var(--scorecard-color);
+	--birdie-text-color: var(--scorecard-color);
+
+	--eagle-color: var(--scorecard-color);	
+	--eagle-text-color: var(--main-background-color);
+
+	--bogey-color: var(--scorecard-color);
+	--bogey-text-color: var(--scorecard-color);
+
+	--double-color: var(--scorecard-color);
+	--double-text-color: var(--main-background-color);
+}
+body {
+	background-color: var(--main-background-color);
+}
 h1 {
 	text-align: center;
+	color: var(--main-text-color);
 }
-div {
+div.headers {
 	width: 60%;
+	display: block;
 	margin: 0 auto;
+	margin-bottom: 10;
 }
 a {
 	display: inline-block;
-	width: 32%;
+	width: 24.5%;
 	text-align: center;
 	margin: 0 auto;
 	text-decoration: none;
-	background-color: yellow;
-	color: black;
+	border: 1px solid var(--main-border-color);
+	color: var(--main-text-color);
+}
+a.current 
+{
+	background-color: var(--header-color-selected);
+	color: var(--header-text-color-selected);
+}
+a.course {
+	border: none;
 }
 a:hover {
-	background-color: green;
-	color: white;
+	background-color: var(--header-color-unselected);
+	color: var(--header-text-color-unselected);
 	text-decoration: none;
+}
+input, select, span {
+	background-color: var(--main-background-color);
+	color: var(--main-text-color);
+}
+::placeholder {
+	color: var(--main-text-color);
 }

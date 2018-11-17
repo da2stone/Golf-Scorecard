@@ -3,11 +3,9 @@
 	<head>
 		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<link href="header.css" rel="stylesheet" type="text/css">
 
 <style type="text/css">
-h1 {
-	text-align: center;
-}
 select {
 	width: 60%;
 }
@@ -33,33 +31,18 @@ div.headers {
 	margin: 0 auto;
 	margin-bottom: 5;
 }
-a {
-	display: inline-block;
-	width: 24.5%;
-	text-align: center;
-	margin: 0 auto;
-	text-decoration: none;
-	background-color: yellow;
-	color: black;
-}
-a.current 
-{
-	background-color: green;
-	color: white;
-}
-a:hover {
-	background-color: green;
-	color: white;
-	text-decoration: none;
-}
 input.submit {
 	width: 95%;
+	background-color: var(--header-color-selected);
+	color: var(--header-text-color-selected);
+}
+input.submit:hover {
+	background-color: var(--header-color-unselected);
+	color: var(--header-text-color-unselected);
+	cursor: pointer;
 }
 input.date {
 	width: 30%;
-}
-span {
-	width: 9%;
 }
 span {
 	display: inline-block;
