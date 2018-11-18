@@ -25,7 +25,7 @@ app.use(bodyParser.json());
 app.set('view engine', 'ejs'); // set the view engine to use ejs 
 
 // Able to access other css files
-app.use(express.static(__dirname + '/views'));
+app.use(express.static(__dirname));
 
 app.get('/', function(req, res) {
 	if(!isScorecardCacheUpToDate)

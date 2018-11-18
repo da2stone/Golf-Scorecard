@@ -9,21 +9,22 @@ module.exports = {
     populateStatsFromScorecardList:
     function populateStatsFromScorecardList(scorecardList) {
         let userStats = {
-            numHoles: 0,
-            numEagles:  0,
-            numBirdies: 0,
-            numPars:   0,
-            numBogeys: 0,
-            numDoubles: 0,
+            perHoleStats: [],
             numHoleInOne: 0,
-            numRounds: 0,
+            avgScoreToPar: 0,
             bestScoreToPar: null,
-            totalScoreToPar: 0,
         };
-        let courses = {};
+
+        let numRounds = scorecardList.length;
+        let numHoles = 0;
+        let numEagles = 0;
+        let numBirdies = 0;
+        let numPars = 0;
+        let numBogeys = 0;
+        let numDoubles = 0;
+        let totalScoreToPar = 0;
 
         scorecardList.forEach((scorecard) => {
-            userStats.numRounds++;
             let parList = scorecard.pars;
             let scoreList = scorecard.scores;
 
@@ -33,28 +34,42 @@ module.exports = {
                 if(isNaN(parList[i]))
                     continue;
                 
-                userStats.numHoles++;
+                numHoles++;
                 thisHoleToPar = scoreList[i] - parList[i]; 
                 currentScoreToPar += thisHoleToPar;
                 if(scoreList[i] == 1)
                     userStats.numHoleInOne++;
 
-                if(thisHoleToPar >= 2)
-                    userStats.numEagles++;
-                else if(thisHoleToPar == 1)
-                    userStats.numBirdies++;
-                else if(thisHoleToPar == 0)
-                    userStats.numPars++;
+                if(thisHoleToPar <= -2)
+                    numEagles++;
                 else if(thisHoleToPar == -1)
-                    userStats.numBogeys++;
-                else if(thisHoleToPar <= -2)
-                    userStats.numDoubles++;
+                    numBirdies++;
+                else if(thisHoleToPar == 0)
+                    numPars++;
+                else if(thisHoleToPar == 1)
+                    numBogeys++;
+                else if(thisHoleToPar >= 2)
+                    numDoubles++;
             }
 
-            userStats.totalScoreToPar += currentScoreToPar;
+            totalScoreToPar += currentScoreToPar;
             if(userStats.bestScoreToPar == null || userStats.bestScoreToPar > currentScoreToPar)
                 userStats.bestScoreToPar = currentScoreToPar;
         });
+
+        let eaglePerc = parseFloat(numEagles / numHoles * 100).toFixed(2);
+        let birdiePerc = parseFloat(numBirdies / numHoles * 100).toFixed(2);
+        let parPerc = parseFloat(numPars / numHoles * 100).toFixed(2);
+        let bogeyPerc = parseFloat(numBogeys / numHoles * 100).toFixed(2);
+        let doublePerc = parseFloat(numDoubles / numHoles * 100).toFixed(2);
+
+        userStats.perHoleStats.push(eaglePerc);
+        userStats.perHoleStats.push(birdiePerc);
+        userStats.perHoleStats.push(parPerc);
+        userStats.perHoleStats.push(bogeyPerc);
+        userStats.perHoleStats.push(doublePerc);
+
+        userStats.avgScoreToPar = parseFloat(totalScoreToPar / numRounds).toFixed(2);
 
         return userStats;
     },
