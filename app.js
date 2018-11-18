@@ -68,7 +68,7 @@ app.get('/', function(req, res) {
 		keyArr += value + ",";
 
 		// This removes all invalid characters from the input course string
-		let input = req.body[value].replace(/[^a-zA-Z0-9 ]/g, '');
+		let input = req.body[value].replace(/[^a-zA-Z0-9. ]/g, '');
 		valueArr += `'${input}',`;
 	}
 

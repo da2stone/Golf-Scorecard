@@ -3,6 +3,8 @@
 	--main-text-color: #000000;
 	--main-border-color: #000000;
 
+	--placeholder-color: grey; 
+
 	--scorecard-color: var(--main-text-color);
 
 	--header-color-selected: var(--scorecard-color);
@@ -68,7 +70,7 @@ input, select, span {
 	color: var(--main-text-color);
 }
 ::placeholder {
-	color: var(--main-text-color);
+	color: var(--placeholder-color);
 }
 section {
 	width: 60%;

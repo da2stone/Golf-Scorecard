@@ -6,7 +6,6 @@
     "body-parser": "^1.18.3",
     "canvas": "^2.1.0",
     "chart.js": "^2.7.3",
-    "chartjs-node": "^1.7.1",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
     "sqlite3": "^4.0.2"
