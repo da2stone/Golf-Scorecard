@@ -58,6 +58,25 @@ function getHandicapFromHandicapDifferentialList(handicapDifferentialList)
     }
 }
 
+function getFavouriteCourse(courseList)
+{
+    let favouriteCourse = {
+        'course': '',
+        'numRounds': 0
+    }
+
+    for(var course in courseList)
+    { 
+        if(courseList[course] > favouriteCourse.numRounds)
+        {
+            favouriteCourse.course = course;
+            favouriteCourse.numRounds = courseList[course];
+        }
+    }
+
+    return favouriteCourse.course;
+}
+
 module.exports = {
     populateStatsFromScorecardList:
     function populateStatsFromScorecardList(scorecardList) {
@@ -73,13 +92,14 @@ module.exports = {
         if(scorecardList.length == 0)
             return userStats;
 
-        let numRounds = scorecardList.length;
-        let numHoles = 0;
-        let numEagles = 0;
-        let numBirdies = 0;
-        let numPars = 0;
-        let numBogeys = 0;
-        let numDoubles = 0;
+        // Initialize the overall variables
+        let totalNumRounds  = scorecardList.length;
+        let totalNumHoles   = 0;
+        let totalNumEagles  = 0;
+        let totalNumBirdies = 0;
+        let totalNumPars    = 0;
+        let totalNumBogeys  = 0;
+        let totalNumDoubles = 0;
         let totalScoreToPar = 0;
         let handicapDifferentialList = [];
         let courseList = {};
@@ -108,22 +128,22 @@ module.exports = {
                 if(isNaN(parList[i]))
                     continue;
                 
-                numHoles++;
+                totalNumHoles++;
                 thisHoleToPar = scoreList[i] - parList[i]; 
                 currentScoreToPar += thisHoleToPar;
                 if(scoreList[i] == 1)
-                    userStats.numHoleInOne++;
+                    userStats.totalNumHoleInOne++;
 
                 if(thisHoleToPar <= -2)
-                    numEagles++;
+                    totalNumEagles++;
                 else if(thisHoleToPar == -1)
-                    numBirdies++;
+                    totalNumBirdies++;
                 else if(thisHoleToPar == 0)
-                    numPars++;
+                    totalNumPars++;
                 else if(thisHoleToPar == 1)
-                    numBogeys++;
+                    totalNumBogeys++;
                 else if(thisHoleToPar >= 2)
-                    numDoubles++;
+                    totalNumDoubles++;
             }
 
             totalScoreToPar += currentScoreToPar;
@@ -131,37 +151,17 @@ module.exports = {
                 userStats.bestScoreToPar = currentScoreToPar;
         });
 
-        let favouriteCourse = {
-            'course': '',
-            'numRounds': 0
-        }
+        userStats.favouriteCourse = getFavouriteCourse(courseList);
 
-        for(var course in courseList)
-        { 
-            if(courseList[course] > favouriteCourse.numRounds)
-            {
-                favouriteCourse.course = course;
-                favouriteCourse.numRounds = courseList[course];
-            }
-        }
+        userStats.perHoleStats[0] = parseFloat(totalNumEagles / totalNumHoles * 100).toFixed(2);;
+        userStats.perHoleStats[1] = parseFloat(totalNumBirdies / totalNumHoles * 100).toFixed(2);;
+        userStats.perHoleStats[2] = parseFloat(totalNumPars / totalNumHoles * 100).toFixed(2);;
+        userStats.perHoleStats[3] = parseFloat(totalNumBogeys / totalNumHoles * 100).toFixed(2);;
+        userStats.perHoleStats[4] = parseFloat(totalNumDoubles / totalNumHoles * 100).toFixed(2);;
 
-        userStats.favouriteCourse = favouriteCourse.course;
+        userStats.avgScoreToPar = parseFloat(totalScoreToPar / totalNumRounds).toFixed(2);
 
-        let eaglePerc = parseFloat(numEagles / numHoles * 100).toFixed(2);
-        let birdiePerc = parseFloat(numBirdies / numHoles * 100).toFixed(2);
-        let parPerc = parseFloat(numPars / numHoles * 100).toFixed(2);
-        let bogeyPerc = parseFloat(numBogeys / numHoles * 100).toFixed(2);
-        let doublePerc = parseFloat(numDoubles / numHoles * 100).toFixed(2);
-
-        userStats.perHoleStats[0] = eaglePerc;
-        userStats.perHoleStats[1] = birdiePerc;
-        userStats.perHoleStats[2] = parPerc;
-        userStats.perHoleStats[3] = bogeyPerc;
-        userStats.perHoleStats[4] = doublePerc;
-
-        userStats.avgScoreToPar = parseFloat(totalScoreToPar / numRounds).toFixed(2);
-
-        if(numRounds >= 5)
+        if(totalNumRounds >= 5)
             userStats.handicap = parseFloat(getHandicapFromHandicapDifferentialList(handicapDifferentialList)).toFixed(2);
 
         return userStats;
@@ -176,72 +176,52 @@ module.exports = {
         'date': row.date,
         'scores': [],
         'pars': [],
-        'classes': []
+        'cssClasses': []
         };
-        let pars = false;
 
-        let count = 1;
+        let scoreList = Object.values(row).slice(2,20);
+        let parList = Object.values(row).slice(20,38);
+
         let frontNineScore = 0;
         let backNineScore = 0;
-        for(var col in row) {
-            if(col != "course" && col != "date" && col != "slope" && col != "rating")
+
+        for(var i = 0; i < 18; i++)
+        {
+            let score = scoreList[i];
+            let par = parList[i];
+            scorecard.scores.push(score);
+            scorecard.pars.push(par);
+
+            let difference = score - par;
+            if(difference <= -2)
+                scorecard.cssClasses.push("eagle");
+            if(difference == -1)
+                scorecard.cssClasses.push("birdie");
+            if(difference == 0)
+                scorecard.cssClasses.push("par");
+            if(difference == 1)
+                scorecard.cssClasses.push("bogey");
+            if(difference >= 2)
+                scorecard.cssClasses.push("double");
+
+            if(i < 9)
+                frontNineScore += score;
+            else
+                backNineScore += score;
+            if (i == 8)
             {
-                if(col == "par1")
-                {
-                    pars = true;
-                    count = 1;
-                }
-                if(!pars)
-                {
-                    scorecard.scores.push(row[col]);
-                    if(count < 10)
-                        frontNineScore += row[col];
-                    else
-                        backNineScore += row[col];
-                    count++;
-                    if(count == 10)
-                        scorecard.scores.push(frontNineScore);
-                }
-                else
-                {
-                    if(count == 10)
-                        scorecard.pars.push("Out");
-                    
-                    scorecard.pars.push(row[col]);
-                    count++;
-                }
+                scorecard.scores.push(frontNineScore);
+                scorecard.pars.push("Out");
+                scorecard.cssClasses.push("out");
             }
         }
 
-        scorecard.pars.push("In");
-        scorecard.pars.push("Total");
         scorecard.scores.push(backNineScore);
         scorecard.scores.push(frontNineScore + backNineScore);
-
-        for(var i = 0; i < 19; ++i)
-        {
-            if(i == 9)
-                scorecard.classes.push("in");
-            else
-            {
-                let par = scorecard.pars[i];
-                let score = scorecard.scores[i];
-                let difference = score - par;
-                if(difference <= -2)
-                    scorecard.classes.push("eagle");
-                if(difference == -1)
-                    scorecard.classes.push("birdie");
-                if(difference == 0)
-                    scorecard.classes.push("par");
-                if(difference == 1)
-                    scorecard.classes.push("bogey");
-                if(difference >= 2)
-                    scorecard.classes.push("double");
-            }
-        }
-
-        scorecard.classes.push("out");
-        scorecard.classes.push("total");
+        scorecard.pars.push("In");
+        scorecard.pars.push("Total");
+        scorecard.cssClasses.push("in");
+        scorecard.cssClasses.push("total");
 
         return scorecard;
     }

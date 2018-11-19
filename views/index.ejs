@@ -109,7 +109,7 @@ tr,td {
 					<div class="date"> <%= fullGame.date %> </div>
 
 					<% fullGame.scores.forEach(function(shotsPerHole, scoreIndex) { %>
-					<div class="<%= fullGame.classes[scoreIndex]%>"> <%= shotsPerHole %> </div>
+					<div class="<%= fullGame.cssClasses[scoreIndex]%>"> <%= shotsPerHole %> </div>
 					<% }); %>
 
 				</section>
