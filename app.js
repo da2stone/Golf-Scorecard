@@ -148,6 +148,25 @@ app.get('/', function(req, res) {
 
 	res.redirect('/addScorecard');
 })
+.post('/editScorecard', urlencodedparser, function(req, res) {
+	var input = req.body.input.split(',');
+	let id = input[0];
+	let sql = `UPDATE scorecards SET date = '${input[1]}'`;
+
+	for(var i = 2; i < input.length; i++)
+	{
+		sql += `,hole${i-1} = '${input[i]}'`
+	}
+
+	sql += ` WHERE scorecards.id = ${id};`
+	db.insertIntoDb(sql);
+
+	// Clear the scorecard cache
+	isScorecardCacheUpToDate = false;
+	scorecardList = [];
+
+	res.get('/');
+})
 .use(function(res,req,next){
 	// If the user inputs an invalid path we just redirect to the home page
 })

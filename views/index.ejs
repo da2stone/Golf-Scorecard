@@ -13,6 +13,17 @@ section.scorecard {
 	margin-bottom: 0;
 	border: none;
 }
+section.editScorecard {
+	display: none;
+	margin: 0 auto;
+	width: 80%;
+	height: 22%;
+	position: absolute;
+	margin-left: 10%;
+	top: 20%;
+	background: var(--main-background-color);
+	z-index: 99999;
+}
 section.footer {
 	margin-top: 20px;
 	border: none;
@@ -63,6 +74,19 @@ div.date {
 	width: 100px;
 	color: var(--main-text-color);
 }
+input {
+	display: inline-block;
+	width: 3.4%;
+	text-align: center;
+}
+input.date {
+	width: 10.3%;
+}
+.editScorecardButton {
+	float: right;
+	margin: 0 auto;
+	margin-right: 10px;
+}
 table {
 	width: 60%;
 	margin: 0 auto;
@@ -78,7 +102,8 @@ tr,td {
 		<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
-		
+		<script src="../editScorecard.js"></script>
+
 		<div class="headers">
 			<a href="/" class="current"> Home </a>
 			<a href="/addCourse"> Add Course  </a>
@@ -87,12 +112,49 @@ tr,td {
 		</div>
 		
 			<% scorecards.forEach(function(fullGame, index) { %>
-			<section>	
+			<section class="editScorecard" id="scorecard-<%= index %>">
 				<section class="scorecard">
 					<div class="course"> 
 						<a class="course" href="/myStats?course=<%= fullGame.course %>">
 						 <%= fullGame.course %>
-						</a> 
+						</a>
+					</div>
+				</section>
+
+				<section class="scorecard">
+					<div class="date"> Par </div>
+
+					<% fullGame.pars.forEach(function(shotsPerHole, scoreIndex) { %>
+						<div class="expectedPar <%= shotsPerHole %>"> <%= shotsPerHole %> </div>
+					<% }); %>
+
+					</section>
+
+				<section class="scorecard">
+					<input type="hidden" name="id"  id="id" class="id" value="<%= fullGame.id %>">
+					<input type="text" name="date"  id="date" class="date" value="<%= fullGame.date %>">
+
+					<% fullGame.scores.forEach(function(shotsPerHole, scoreIndex) { %>
+						<% if(scoreIndex < 19 && scoreIndex != 9) { %>
+						<input type="text" name="hole<%= scoreIndex + 1 %>" id="hole<%= scoreIndex + 1 %>" value="<%= shotsPerHole %>">
+						<% } else { %>
+						<div class="<%= fullGame.cssClasses[scoreIndex]%>"> <%= shotsPerHole %> </div>
+					<% } }); %>
+
+				</section>
+
+				<section class="scorecard">
+					<button class="btn-primary editScorecardButton" onclick="save('<%= index %>', '<%= scorecards.length %>')">Save</button>
+					<button class="btn-primary editScorecardButton" onclick="cancel('<%= index %>')">Cancel</button>
+				</section>
+			</section>
+			
+			<section onclick="editScorecard('<%= index %>', '<%= scorecards.length %>')">	
+				<section class="scorecard">
+					<div class="course"> 
+						<a class="course" href="/myStats?course=<%= fullGame.course %>">
+						 <%= fullGame.course %>
+						</a>
 					</div>
 				</section>
 
