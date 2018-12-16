@@ -32,6 +32,9 @@ function save(scorecardId, length) {
     xhttp.open("POST", "/editScorecard", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
     xhttp.send(`input=${newFields}`);
+
+    // Reset the data 
+    window.location.href = '/';
 }
 
 function cancel(scorecardId) {

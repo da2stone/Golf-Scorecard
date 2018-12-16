@@ -36,14 +36,35 @@ app.get('/', function(req, res) {
 				scorecardList.push(stats.getScorecardResultFromRow(row));
 			});
 			isScorecardCacheUpToDate = true;
-			res.render('index', {scorecards: scorecardList});
+			db.selectFromDb('SELECT * FROM courses')
+			.then(function(result) {
+	
+				result.forEach((row) => {
+					courseList.push(row.course);
+	
+					let parForCourse = [];
+					for(var par in row)
+					{
+						if(par != "course")
+						{
+							parForCourse.push(row[par]);
+						}
+					}
+					courses[row.course] = parForCourse;
+				});
+	
+				isCourseCacheUpToDate = true;
+				res.render('index', {scorecards: scorecardList, courses: courseList});
+			}, function(err) {
+				console.log(`ERROR - ${err}`);
+			});
 		}, function(err) {
 			console.log(`ERROR - ${err}`);
 		});
 	}
 	else
 	{
-		res.render('index', {scorecards: scorecardList});
+		res.render('index', {scorecards: scorecardList, courses: courseList});
 	}
 })
 .get('/home', function(req, res){
@@ -53,100 +74,58 @@ app.get('/', function(req, res) {
 	let userStats = stats.populateStatsFromScorecardList(scorecardList);
 	res.render('myStats', {userStats: userStats});
 })
-.get('/addCourse', function(req, res) {
-	res.render('addCourse');
-})
 .post('/addCourse', urlencodedparser, function(req, res) {
-	let keyArr = "";
-	let valueArr = "";
+	// This removes all invalid characters from the input course string
+	let courseName = req.body.course.replace(/[^a-zA-Z0-9. ]/g, '');
+	let slope = req.body.slope;
+	let rating = req.body.rating;
+	let parList = req.body.pars;
 
-	// Create strings for the sql insert statement 
-	for(var value in req.body)
+	let sql = `INSERT INTO courses(course`;
+	
+	for (var i = 1; i <= 18; ++i)
 	{
-		keyArr += value + ",";
-
-		// This removes all invalid characters from the input course string
-		let input = req.body[value].replace(/[^a-zA-Z0-9. ]/g, '');
-		valueArr += `'${input}',`;
+		sql += `,par${i}`;
 	}
 
-	keyArr = keyArr.slice(0,-1);
-	valueArr = valueArr.slice(0,-1);
-
-	let sql = `INSERT INTO courses(${keyArr}) VALUES (${valueArr});`
+	sql += `,rating,slope) VALUES ('${courseName}',${parList},${rating},${slope});`;
 
 	db.insertIntoDb(sql);
 
 	// Clear the cache
-	isCourseCacheUpToDate = false;
+	isScorecardCacheUpToDate = false;
+	scorecardList = [];
 	courseList = [];
 	courses = {};
-
-	res.render('addCourse');
 })
-.get('/addScorecard', function(req,res){
-	if(!isCourseCacheUpToDate)
-	{
-		db.selectFromDb('SELECT * FROM courses')
-		.then(function(result) {
-
-			result.forEach((row) => {
-				courseList.push(row.course);
-
-				let parForCourse = [];
-				for(var par in row)
-				{
-					if(par != "course")
-					{
-						parForCourse.push(row[par]);
-					}
-				}
-				courses[row.course] = parForCourse;
-			});
-
-			isCourseCacheUpToDate = true;
-			res.render('addScorecard', {courses: courseList});
-		}, function(err) {
-			console.log(`ERROR - ${err}`);
-		});
-	}
-	else
-	{
-		res.render('addScorecard', {courses: courseList});
-	}
-})
-.get('/addScorecard/getCourse', function(req,res){
+.get('/getCourse', function(req,res){
 	// Should never get to this url without updating the cache first
 	if(isCourseCacheUpToDate)
 	{
 		var currentCourse = req.query.getCourse;
 		res.send({pars: courses[currentCourse]})
 	}
-	// TODO add redirect to home page if this is not the case
 })
 .post('/addScorecard', urlencodedparser, function(req, res){
+	// This removes all invalid characters from the input course string
+	let courseName = `'${req.body.course.replace(/[^a-zA-Z0-9. ]/g, '')}'`;
+	let date = `'${req.body.date}'`;
+	let scoreList = req.body.scoreList;
 
-	// Format the data for easier insertion into the database
-	let keyArr = "";
-	let valueArr = "";
-
-	for(var value in req.body)
+	let sql = `INSERT INTO scorecards(course, date`;
+	
+	for (var i = 1; i <= 18; ++i)
 	{
-		keyArr += value + ",";
-		valueArr += "'" + req.body[value] + "',";
+		sql += `,hole${i}`;
 	}
 
-	keyArr = keyArr.slice(0,-1);
-	valueArr = valueArr.slice(0,-1);
+	sql += `) VALUES (${courseName},${date},${scoreList})`;
 
-	let sql = `INSERT INTO scorecards(${keyArr}) VALUES (${valueArr});`
 	db.insertIntoDb(sql);
 
 	// Clear the scorecard cache
 	isScorecardCacheUpToDate = false;
 	scorecardList = [];
-
-	res.redirect('/addScorecard');
 })
 .post('/editScorecard', urlencodedparser, function(req, res) {
 	var input = req.body.input.split(',');
@@ -164,8 +143,6 @@ app.get('/', function(req, res) {
 	// Clear the scorecard cache
 	isScorecardCacheUpToDate = false;
 	scorecardList = [];
-
-	res.get('/');
 })
 .use(function(res,req,next){
 	// If the user inputs an invalid path we just redirect to the home page

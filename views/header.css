@@ -5,6 +5,8 @@
 
 	--placeholder-color: grey; 
 
+	--add-button-color: orange;
+
 	--scorecard-color: var(--main-text-color);
 
 	--header-color-selected: var(--scorecard-color);
@@ -45,7 +47,7 @@ div.headers {
 }
 a {
 	display: inline-block;
-	width: 24.5%;
+	width: 45%;
 	text-align: center;
 	margin: 0 auto;
 	text-decoration: none;

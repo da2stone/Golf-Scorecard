@@ -10,11 +10,13 @@ function selectFromDb(sql)
 	return new Promise(function(resolve, reject) {
 		db.all(sql, [], (err, rows) => {
 			if (err) {
-			reject(err);
+				console.log("ERROR INSERTING INTO DATABASE");
+				console.log(err);
+				reject(err);
 			}
 			else
 			{
-			resolve(rows);
+				resolve(rows);
 			}
 		});
 	});
@@ -22,12 +24,19 @@ function selectFromDb(sql)
 
 function insertIntoDb(sql)
 {
-	db.run(sql, [], function(err) {
-		if(err)
-		{
-			console.log("ERROR INSERTING INTO DATABASE");
-			console.log(err);
-		}
+	return new Promise(function(resolve, reject) {
+		db.run(sql, [], function(err) {
+			if(err)
+			{
+				console.log("ERROR INSERTING INTO DATABASE");
+				console.log(err);
+				reject(err);
+			}
+			else
+			{
+				resolve();	
+			}
+		});
 	});
 }
 
