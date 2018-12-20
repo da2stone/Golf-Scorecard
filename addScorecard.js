@@ -11,54 +11,37 @@ $(document).ready(function() {
             'url': getSelectedCourse,
             'type': 'GET',
             'success': function(data) {
-                $("span#par1").html(data.pars[0]);
-                $("span#par2").html(data.pars[1]);
-                $("span#par3").html(data.pars[2]);
-                $("span#par4").html(data.pars[3]);
-                $("span#par5").html(data.pars[4]);
-                $("span#par6").html(data.pars[5]);
-                $("span#par7").html(data.pars[6]);
-                $("span#par8").html(data.pars[7]);
-                $("span#par9").html(data.pars[8]);
-                $("span#par10").html(data.pars[9]);
-                $("span#par11").html(data.pars[10]);
-                $("span#par12").html(data.pars[11]);
-                $("span#par13").html(data.pars[12]);
-                $("span#par14").html(data.pars[13]);
-                $("span#par15").html(data.pars[14]);
-                $("span#par16").html(data.pars[15]);
-                $("span#par17").html(data.pars[16]);
-                $("span#par18").html(data.pars[17]);
+                for(var i = 1; i <= 18; i++)
+                {
+                    $(`span#par${i}`).html(data.pars[i - 1]);
+                }
             }
         });
     });
 
+    // Auto populate the score when the user enters the full nine
     $("input.addHole").on("change", function() {
-        var scoreOut = parseFloat($("#addHole1").val()) 
-                    + parseFloat($("#addHole2").val())
-                    + parseFloat($("#addHole3").val())
-                    + parseFloat($("#addHole4").val())
-                    + parseFloat($("#addHole5").val())
-                    + parseFloat($("#addHole6").val())
-                    + parseFloat($("#addHole7").val())
-                    + parseFloat($("#addHole8").val())
-                    + parseFloat($("#addHole9").val());
+        autoAdd("#addHole", "#score");
+    });
 
-        var scoreIn = parseFloat($("#addHole10").val()) 
-                    + parseFloat($("#addHole11").val())
-                    + parseFloat($("#addHole12").val())
-                    + parseFloat($("#addHole13").val())
-                    + parseFloat($("#addHole14").val())
-                    + parseFloat($("#addHole15").val())
-                    + parseFloat($("#addHole16").val())
-                    + parseFloat($("#addHole17").val())
-                    + parseFloat($("#addHole18").val());
-
-        $("#scoreOut").html(scoreOut);
-        $("#scoreIn").html(scoreIn);
-        $("#scoreTotal").html(scoreIn + scoreOut);
+    // Auto populate the number of putts when the user enters the full nine
+    $("input.addPutts").on("change", function() {
+        autoAdd("#addPutts", "#putts");
     });
 });
+
+function autoAdd(id, id2)
+{
+    var scoreOut = 0;
+    var scoreIn = 0;
+    
+    for(var i = 1; i <= 9; i++) { scoreOut += parseFloat($(`${id}${i}`).val()); }
+    for(var i = 10; i <= 18; i++) { scoreIn += parseFloat($(`${id}${i}`).val()); }
+
+    $(`${id2}Out`).html(scoreOut);
+    $(`${id2}In`).html(scoreIn);
+    $(`${id2}Total`).html(scoreIn + scoreOut);
+}
 
 // Add Course or Add Scorecard tabs 
 function openTab(tabId)
@@ -116,18 +99,29 @@ function addScorecardSave()
     let course = courseSelect.options[courseSelect.selectedIndex].text;
     let scores = document.querySelectorAll(`input.addHole`);
     let date = document.getElementById(`addScorecardDate`).value;
+    let putts = document.querySelectorAll(`input.addPutts`);
+    let girs = document.querySelectorAll(`input.gir`);
 
     let scoreList = [];
-
     scores.forEach(element => {
         scoreList.push(element.value);
+    });
+
+    let puttList = [];
+    putts.forEach(element => {
+        puttList.push(element.value);
+    });
+
+    let girList = [];
+    girs.forEach(element => {
+        girList.push(element.checked === true ? 1 : 0);
     });
 
     // Send the post request with the new values
     let xhttp = new XMLHttpRequest();
     xhttp.open("POST", "/addScorecard", true);
     xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-    xhttp.send(`course=${course}&date=${date}&scoreList=${scoreList}`);
+    xhttp.send(`course=${course}&date=${date}&scoreList=${scoreList}&puttList=${puttList}&girList=${girList}`);
 
     // Reset the data
     window.location.href = '/';

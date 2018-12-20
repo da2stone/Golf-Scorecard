@@ -7,6 +7,9 @@ section.scorecard, section.addScores, section.pars {
 	margin: 0 auto;
 	border: none;
 }
+section.addScores {
+	margin-bottom: 1%;
+}
 section.editScorecard {
 	display: none;
 	margin: 0 auto;

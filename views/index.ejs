@@ -161,6 +161,40 @@
 					<span class="addHole" id="scoreIn"> </span>
 					<span class="addHole" id="scoreTotal"> </span>
 				</section>
+
+				<section class="addScores">
+					<span class="parAndScore"> Putts </span>
+
+					<% for(var i = 1; i <= 9; i++) { %>
+						<input type="text" name="addPutts<%= i %>" id="addPutts<%= i %>" class="addPutts" placeholder="<%= i %>">
+					<% } %>
+
+					<span class="addPutts" id="puttsOut"> </span>
+					
+					<% for(var i = 10; i <= 18; i++) { %>
+						<input type="text" name="addPutts<%= i %>" id="addPutts<%= i %>" class="addPutts" placeholder="<%= i %>">
+					<% } %>
+
+					<span class="addPutts" id="puttsIn"> </span>
+					<span class="addPutts" id="puttsTotal"> </span>
+				</section>
+
+				<section class="addScores">
+					<span class="parAndScore"> G.I.R. </span>
+
+					<% for(var i = 1; i <= 9; i++) { %>
+						<input type="checkbox" name="gir<%= i %>" id="gir<%= i %>" class="gir" placeholder="<%= i %>">
+					<% } %>
+
+					<span class="gir" id="girOut"> </span>
+					
+					<% for(var i = 10; i <= 18; i++) { %>
+						<input type="checkbox" name="gir<%= i %>" id="gir<%= i %>" class="gir" placeholder="<%= i %>">
+					<% } %>
+
+					<span class="gir" id="girIn"> </span>
+					<span class="gir" id="girTotal"> </span>
+				</section>
 			</section>
 			
 			<section class="insideAddScorecard">

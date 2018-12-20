@@ -22,7 +22,7 @@ function selectFromDb(sql)
 	});
 }
 
-function insertIntoDb(sql)
+function insertIntoDb(sql, cbk)
 {
 	return new Promise(function(resolve, reject) {
 		db.run(sql, [], function(err) {
@@ -34,6 +34,11 @@ function insertIntoDb(sql)
 			}
 			else
 			{
+				if(cbk != null)
+				{
+					cbk(this.lastID);
+				}
+
 				resolve();	
 			}
 		});

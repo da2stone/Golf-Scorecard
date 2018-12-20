@@ -12,11 +12,10 @@ var app = express();
 var urlencodedparser = bodyParser.urlencoded({extended: false});
 
 var scorecardList = [];
-var isScorecardCacheUpToDate = false;
+var isCacheUpToDate = false;
 
 var courseList = [];
 var courses = {};
-var isCourseCacheUpToDate = false;
 
 app.use(bodyParser.json());
 
@@ -26,7 +25,7 @@ app.set('view engine', 'ejs'); // set the view engine to use ejs
 app.use(express.static(__dirname));
 
 app.get('/', function(req, res) {
-	if(!isScorecardCacheUpToDate)
+	if(!isCacheUpToDate)
 	{
 		// Contact the database so that we can display the scorecards
 		db.selectFromDb('SELECT * FROM scorecards INNER JOIN courses ON scorecards.course = courses.course ORDER BY scorecards.date DESC')
@@ -35,7 +34,6 @@ app.get('/', function(req, res) {
 			result.forEach((row) => {
 				scorecardList.push(stats.getScorecardResultFromRow(row));
 			});
-			isScorecardCacheUpToDate = true;
 			db.selectFromDb('SELECT * FROM courses')
 			.then(function(result) {
 	
@@ -53,7 +51,7 @@ app.get('/', function(req, res) {
 					courses[row.course] = parForCourse;
 				});
 	
-				isCourseCacheUpToDate = true;
+				isCacheUpToDate = true;
 				res.render('index', {scorecards: scorecardList, courses: courseList});
 			}, function(err) {
 				console.log(`ERROR - ${err}`);
@@ -93,14 +91,14 @@ app.get('/', function(req, res) {
 	db.insertIntoDb(sql);
 
 	// Clear the cache
-	isScorecardCacheUpToDate = false;
+	isCacheUpToDate = false;
 	scorecardList = [];
 	courseList = [];
 	courses = {};
 })
 .get('/getCourse', function(req,res){
 	// Should never get to this url without updating the cache first
-	if(isCourseCacheUpToDate)
+	if(isCacheUpToDate)
 	{
 		var currentCourse = req.query.getCourse;
 		res.send({pars: courses[currentCourse]})
@@ -111,21 +109,31 @@ app.get('/', function(req, res) {
 	let courseName = `'${req.body.course.replace(/[^a-zA-Z0-9. ]/g, '')}'`;
 	let date = `'${req.body.date}'`;
 	let scoreList = req.body.scoreList;
+	let puttList = req.body.puttList;
+	let girList = req.body.girList;
 
 	let sql = `INSERT INTO scorecards(course, date`;
-	
-	for (var i = 1; i <= 18; ++i)
-	{
-		sql += `,hole${i}`;
-	}
-
+	for (var i = 1; i <= 18; ++i) { sql += `,hole${i}`; }
 	sql += `) VALUES (${courseName},${date},${scoreList})`;
 
-	db.insertIntoDb(sql);
+	db.insertIntoDb(sql, function(lastId) {
+		let sql2 = `INSERT INTO scorecards_putts(id, putt1`;
+		for (var i = 2; i <= 18; ++i) { sql2 += `,putt${i}`; }
+		sql2 += `) VALUES (${lastId}, ${puttList})`;
+	
+		let sql3 = `INSERT INTO scorecards_gir(id, gir1`;
+		for (var i = 2; i <= 18; ++i) { sql3 += `,gir${i}`; }
+		sql3 += `) VALUES (${lastId}, ${girList})`;
 
-	// Clear the scorecard cache
-	isScorecardCacheUpToDate = false;
+		db.insertIntoDb(sql2);
+		db.insertIntoDb(sql3);
+	});
+
+	// Clear the cache
+	isCacheUpToDate = false;
 	scorecardList = [];
+	courseList = [];
+	courses = {};
 })
 .post('/editScorecard', urlencodedparser, function(req, res) {
 	var input = req.body.input.split(',');
@@ -140,9 +148,11 @@ app.get('/', function(req, res) {
 	sql += ` WHERE scorecards.id = ${id};`
 	db.insertIntoDb(sql);
 
-	// Clear the scorecard cache
-	isScorecardCacheUpToDate = false;
+	// Clear the cache
+	isCacheUpToDate = false;
 	scorecardList = [];
+	courseList = [];
+	courses = {};
 })
 .use(function(res,req,next){
 	// If the user inputs an invalid path we just redirect to the home page
